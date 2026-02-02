@@ -6,10 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-* {
-  box-sizing: border-box;
-  font-family: 'Helvetica', sans-serif;
-}
+* { box-sizing: border-box; font-family: 'Helvetica', sans-serif; }
 
 body {
   margin: 0;
@@ -41,21 +38,15 @@ body {
   margin-bottom: 15px;
 }
 
-h1 {
-  color: #ff9acb;
-  margin-bottom: 6px;
-}
+h1 { color: #ff9acb; margin-bottom: 6px; }
 
-.date {
+.date, .counter {
   font-size: 14px;
   opacity: 0.85;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
-p {
-  font-size: 18px;
-  margin-bottom: 22px;
-}
+p { font-size: 18px; margin-bottom: 22px; }
 
 .buttons {
   position: relative;
@@ -83,9 +74,7 @@ button {
   left: 170px;
 }
 
-.success {
-  display: none;
-}
+.success { display: none; }
 
 /* Floating hearts */
 .heart {
@@ -102,14 +91,19 @@ button {
 </style>
 </head>
 
-<body>
+<body onclick="startMusic()">
+
+<audio id="bgm" loop>
+  <source src="https://dl.dropboxusercontent.com/scl/fi/2c1x5q6k1y3v4n5o6p7q8/soft-spot.mp3?rlkey=demo" type="audio/mpeg">
+</audio>
 
 <div class="card">
   <div id="question">
-    <img src="data:image/jpeg;base64,{{IMAGE_BASE64}}" alt="Us">
+    <img src="data:image/jpeg;base64,544760" alt="Us">
 
     <h1>Chelsea 💖</h1>
     <div class="date">Together since December 31, 2024</div>
+    <div class="counter" id="counter"></div>
 
     <p>
       You are my favorite person, my safe place,<br>
@@ -119,7 +113,7 @@ button {
 
     <div class="buttons">
       <button id="yesBtn" onclick="sayYes(event)">Yes 💖</button>
-      <button id="noBtn" onmouseover="moveNo()">No 🙄</button>
+      <button id="noBtn" onclick="makeYesBigger()">No 🙄</button>
     </div>
   </div>
 
@@ -133,14 +127,61 @@ button {
 </div>
 
 <script>
-/* No button runs away */
-function moveNo() {
+let musicStarted = false;
+
+/* Music after first tap */
+function startMusic() {
+  if (!musicStarted) {
+    document.getElementById("bgm").play();
+    musicStarted = true;
+  }
+}
+
+/* Days counter */
+function updateCounter() {
+  const startDate = new Date("2024-12-31");
+  const today = new Date();
+  const diff = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+  document.getElementById("counter").innerText =
+    `We’ve been together for ${diff} days 💕`;
+}
+updateCounter();
+
+  let yesScale = 1;
+let noClicks = 0;
+
+const noTexts = [
+  "No 🙄",
+  "Are you sure?",
+  "Really?",
+  "Chelsea pls 😭",
+  "Okay wow 😭💖"
+];
+
+function makeYesBigger() {
+  noClicks++;
+  yesScale += 0.18;
+
+  const yesBtn = document.getElementById("yesBtn");
   const noBtn = document.getElementById("noBtn");
-  const card = document.querySelector(".card");
-  const maxX = card.clientWidth - noBtn.clientWidth - 20;
-  const maxY = 70;
-  noBtn.style.left = Math.random() * maxX + "px";
-  noBtn.style.top = Math.random() * maxY + "px";
+
+  yesBtn.style.transform = `scale(${yesScale})`;
+  yesBtn.style.boxShadow = "0 0 35px rgba(255,105,180,1)";
+
+  if (noClicks < noTexts.length) {
+    noBtn.innerText = noTexts[noClicks];
+  } else {
+    noBtn.innerText = "😭";
+  }
+
+  // cute bounce effect
+  yesBtn.animate(
+    [
+      { transform: `scale(${yesScale - 0.05})` },
+      { transform: `scale(${yesScale})` }
+    ],
+    { duration: 200, easing: "ease-out" }
+  );
 }
 
 /* Yes explosion */
